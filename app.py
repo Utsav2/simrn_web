@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, MetaData, Table
 app = Flask(__name__)
 
 #trying to connect to the database
+# noinspection PyBroadException
 try:
     # postgresql+psycopg2://user:password@host:port/dbname[?key=value&key=value...]
     db_engine = create_engine(
@@ -12,7 +13,8 @@ try:
         "weklupyvfstrbo:xrQ7q81SexyqHZU0gF7P_B2xhv@ec2-107-21-93-97.compute-1.amazonaws.com:5432/delbu700esm11g")
     db_connection = db_engine.connect()
 
-except Exception:
+except Exception as e:
+    print e.message
     print ("failed database connection")
     abort(500)
 
