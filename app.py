@@ -1,6 +1,8 @@
 from flask import Flask, abort, jsonify, request
 import os
 from sqlalchemy import create_engine, MetaData, Table
+import psycopg2
+import datetime
 
 app = Flask(__name__)
 
@@ -36,18 +38,24 @@ def get_list_of_dicts(result_proxy):
         result_set.append(dict(row))
     return result_set
 
+
+#Gets the current time for the db
+def get_current_time_db():
+    return psycopg2.Time(datetime.time.hour, datetime.time.minute, datetime.time.second)
+
+
 #get all open requests for images - for the workers
 @app.route('/getRequests')
 def requests():
-    return jsonify(get_list_of_dicts(request_table.select().execute()))
+    return jsonify(requests=get_list_of_dicts(request_table.select().execute()))
 
 
 #create a request for a new image search - for the controller
 @app.route('/createRequest', methods=["POST"])
 def create_request():
-    request_table.insert().values(rtime=request.form["rtime"], imei=request.form["imei"],
-                                  image=request.form["image"]).execute()
-
+    request_table.insert().values(imei=request.form["imei"],
+                                  image=request.form["image"], sub_image=request.form["sub_image"],
+                                  rtime=get_current_time_db()).execute()
 
 #delete a current request - for the controller
 @app.route('/deleteRequest', methods=["POST"])
@@ -58,7 +66,7 @@ def delete_request():
 #register as a worker for some job which is given by the parent imei - for workers
 @app.route('/registerWorker', methods=["POST"])
 def register_worker():
-    worker_table.insert().values(rtime=request.form["rtime"], imei=request.form["imei"],
+    worker_table.insert().values(rtime=get_current_time_db(), imei=request.form["imei"],
                                  parent=request.form["parent"]).execute()
 
 #unregister as a worker for some job which is given by the parent imei - for workers
@@ -81,7 +89,7 @@ def register_worker_result():
 #gets the results for a certain job once it has completed - for the controller
 @app.route('/getResults', methods=["GET"])
 def get_worker_result():
-    return jsonify(get_list_of_dicts(result_table.select().where(
+    return jsonify(results=get_list_of_dicts(result_table.select().where(
         result_table.c.parent == request.args.get("imei")).execute()))
 
 
