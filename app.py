@@ -58,7 +58,7 @@ def create_request():
         image=request.form["image"], sub_image=request.form["sub_image"],
         rtime=get_current_time_db()).execute()
 
-    return jsonify(status=status)
+    return jsonify(status=get_list_of_dicts(status))
 #delete a current request - for the controller
 @app.route('/deleteRequest', methods=["POST"])
 def delete_request():
