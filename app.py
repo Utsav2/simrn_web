@@ -59,13 +59,16 @@ def create_request():
         rtime=get_current_time_db()).execute()
 
     return jsonify(status=get_list_of_dicts(status))
+
+
 #delete a current request - for the controller
 @app.route('/deleteRequest', methods=["POST"])
 def delete_request():
     status = request_table.delete().where(
-        result_table.c.imei == request.form["imei"]).execute()
+        request_table.c.imei == request.form["imei"]).execute()
 
     return jsonify(status=get_list_of_dicts(status))
+
 
 #register as a worker for some job which is given by the parent imei - for workers
 @app.route('/registerWorker', methods=["POST"])
@@ -77,10 +80,12 @@ def register_worker():
 
     return jsonify(status=get_list_of_dicts(status))
 
+
 #unregister as a worker for some job which is given by the parent imei - for workers
 @app.route('/unregisterWorker', methods=["POST"])
 def un_register_worker():
     worker_table.delete().values(imei=request.form["imei"]).execute()
+
 
 #gets all the workers that have registered for the job, and informs them to start working on the job
 #TODO
@@ -89,10 +94,12 @@ def start_job():
     workers = get_list_of_dicts(worker_table.select().where(parent=request.form["imei"]).execute())
     #The calculation logic of which worker gets which coordinates and stuff goes here
 
+
 #registers a result once it has completed - for the worker
 @app.route('/registerWorkerResult', methods=["POST"])
 def register_worker_result():
     result_table.insert().values(imei=request.form["imei"], result=request.form["result"]).execute()
+
 
 #gets the results for a certain job once it has completed - for the controller
 @app.route('/getResults', methods=["GET"])
