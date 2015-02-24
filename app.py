@@ -6,7 +6,7 @@ import datetime
 
 app = Flask(__name__)
 
-#trying to connect to the database
+# trying to connect to the database
 # noinspection PyBroadException
 try:
     # postgresql+psycopg2://user:password@host:port/dbname[?key=value&key=value...]
@@ -27,9 +27,11 @@ request_table = Table('requests', db_metadata, autoload=True)
 worker_table = Table('worker', db_metadata, autoload=True)
 result_table = Table('results', db_metadata, autoload=True)
 
+
 @app.route('/')
 def hello_world():
     return 'Hello World!'
+
 
 #takes a result proxy from a sql and converts it into a list of dictionaries
 def get_list_of_dicts(result_proxy):
@@ -53,12 +55,12 @@ def requests():
 #create a request for a new image search - for the controller
 @app.route('/createRequest', methods=["POST"])
 def create_request():
-    status = request_table.insert().values(
+    request_table.insert().values(
         imei=request.form["imei"],
         image=request.form["image"], sub_image=request.form["sub_image"],
         rtime=get_current_time_db()).execute()
 
-    return jsonify(status=get_list_of_dicts(status))
+    return jsonify()
 
 
 #delete a current request - for the controller
@@ -67,31 +69,32 @@ def delete_request():
     status = request_table.delete().where(
         request_table.c.imei == request.form["imei"]).execute()
 
-    return jsonify(status=get_list_of_dicts(status))
+    return jsonify()
 
 
 #register as a worker for some job which is given by the parent imei - for workers
 @app.route('/registerWorker', methods=["POST"])
 def register_worker():
-    status = worker_table.insert().values(
+    worker_table.insert().values(
         rtime=get_current_time_db(),
         imei=request.form["imei"],
         parent=request.form["parent"]).execute()
 
-    return jsonify(status=get_list_of_dicts(status))
+    return jsonify()
 
 
 #unregister as a worker for some job which is given by the parent imei - for workers
 @app.route('/unregisterWorker', methods=["POST"])
 def un_register_worker():
-    worker_table.delete().values(imei=request.form["imei"]).execute()
+    worker_table.delete().where(worker_table.c.imei == request.form["imei"]).execute()
+    return jsonify()
 
 
 #gets all the workers that have registered for the job, and informs them to start working on the job
 #TODO
 @app.route('/startJob', methods=["POST"])
 def start_job():
-    workers = get_list_of_dicts(worker_table.select().where(parent=request.form["imei"]).execute())
+    workers = get_list_of_dicts(worker_table.select().where(worker_table.c.parent == request.form["imei"]).execute())
     #The calculation logic of which worker gets which coordinates and stuff goes here
 
 
