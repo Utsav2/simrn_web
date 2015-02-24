@@ -65,7 +65,7 @@ def delete_request():
     status = request_table.delete().values(
         imei=request.form["imei"]).execute()
 
-    return jsonify(status=status)
+    return jsonify(status=get_list_of_dicts(status))
 
 #register as a worker for some job which is given by the parent imei - for workers
 @app.route('/registerWorker', methods=["POST"])
@@ -75,7 +75,7 @@ def register_worker():
         imei=request.form["imei"],
         parent=request.form["parent"]).execute()
 
-    return jsonify(status=status)
+    return jsonify(status=get_list_of_dicts(status))
 
 #unregister as a worker for some job which is given by the parent imei - for workers
 @app.route('/unregisterWorker', methods=["POST"])
