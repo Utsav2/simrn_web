@@ -41,7 +41,7 @@ def get_list_of_dicts(result_proxy):
 
 #Gets the current time for the db
 def get_current_time_db():
-    return psycopg2.Time(datetime.time.hour, datetime.time.minute, datetime.time.second)
+    return psycopg2.Time(int(datetime.time.hour), int(datetime.time.minute), int(datetime.time.second))
 
 
 #get all open requests for images - for the workers
