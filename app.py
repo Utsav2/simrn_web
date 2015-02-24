@@ -53,21 +53,29 @@ def requests():
 #create a request for a new image search - for the controller
 @app.route('/createRequest', methods=["POST"])
 def create_request():
-    request_table.insert().values(imei=request.form["imei"],
-                                  image=request.form["image"], sub_image=request.form["sub_image"],
-                                  rtime=get_current_time_db()).execute()
+    status = request_table.insert().values(
+        imei=request.form["imei"],
+        image=request.form["image"], sub_image=request.form["sub_image"],
+        rtime=get_current_time_db()).execute()
 
+    return jsonify(status=status)
 #delete a current request - for the controller
 @app.route('/deleteRequest', methods=["POST"])
 def delete_request():
-    request_table.delete().values(imei=request.form["imei"]).execute()
+    status = request_table.delete().values(
+        imei=request.form["imei"]).execute()
 
+    return jsonify(status=status)
 
 #register as a worker for some job which is given by the parent imei - for workers
 @app.route('/registerWorker', methods=["POST"])
 def register_worker():
-    worker_table.insert().values(rtime=get_current_time_db(), imei=request.form["imei"],
-                                 parent=request.form["parent"]).execute()
+    status = worker_table.insert().values(
+        rtime=get_current_time_db(),
+        imei=request.form["imei"],
+        parent=request.form["parent"]).execute()
+
+    return jsonify(status=status)
 
 #unregister as a worker for some job which is given by the parent imei - for workers
 @app.route('/unregisterWorker', methods=["POST"])
