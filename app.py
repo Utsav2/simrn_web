@@ -41,7 +41,7 @@ def get_list_of_dicts(result_proxy):
 
 #Gets the current time for the db
 def get_current_time_db():
-    return datetime.time.isoformat(datetime.datetime.now().time())
+    return str(datetime.datetime.now())
 
 
 #get all open requests for images - for the workers
