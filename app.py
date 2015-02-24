@@ -62,8 +62,8 @@ def create_request():
 #delete a current request - for the controller
 @app.route('/deleteRequest', methods=["POST"])
 def delete_request():
-    status = request_table.delete().values(
-        imei=request.form["imei"]).execute()
+    status = request_table.delete().where(
+        result_table.c.imei == request.form["imei"]).execute()
 
     return jsonify(status=get_list_of_dicts(status))
 
